@@ -9,7 +9,7 @@ export class Token {
   }
 
   async balanceOf(walletAddress: string) {
-    const tokenAddress = await this._getTokenAddress()
+    const { tokenAddress } = await this._getGasFreeTokenInfo()
     if (!tokenAddress) {
       throw new Error("token address is not found")
     }
@@ -21,12 +21,10 @@ export class Token {
 
   async transfer(to: string, amount: number) {
     // wallet addressの取得
-    const walletAddress = await this._getWalletAddress()
-    const walletPrivateKey = await this._getWalletPrivateKey()
+    const { walletAddress, walletPrivateKey, tokenAddress } = await this._getGasFreeTokenInfo()
     if (!walletAddress || !walletPrivateKey) {
       throw new Error("wallet address is not found")
     }
-    const tokenAddress = await this._getTokenAddress()
     if (!tokenAddress) {
       throw new Error("token address is not found")
     }
@@ -38,19 +36,13 @@ export class Token {
     await client.mint(tokenAddress, to, amount, walletAddress, signature)
   }
 
-  private async _getWalletAddress() {
+  private async _getGasFreeTokenInfo() {
     const doc = await admin.firestore().collection("GasFreeToken").doc(this.daoId).get()
-    return doc.data()?.walletAddress
-  }
-
-  private async _getWalletPrivateKey() {
-    const doc = await admin.firestore().collection("GasFreeToken").doc(this.daoId).get()
-    return doc.data()?.walletPrivateKey
-  }
-
-  private async _getTokenAddress() {
-    const doc = await admin.firestore().collection("GasFreeToken").doc(this.daoId).get()
-    return doc.data()?.tokenAddress
+    return {
+      walletAddress: doc.data()?.walletAddress,
+      walletPrivateKey: doc.data()?.walletPrivateKey,
+      tokenAddress: doc.data()?.tokenAddress,
+    }
   }
 
   private async _sign(walletAddress: string, walletPrivateKey: string) {
