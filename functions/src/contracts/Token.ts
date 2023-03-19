@@ -8,39 +8,56 @@ export class Token {
     this.daoId = daoId
   }
 
-  balances(userId: string) {
-    const get = () => {
-      return admin
-        .firestore()
-        .collection("Token")
-        .doc(this.daoId)
-        .collection("balances")
-        .doc(userId)
-        .get()
-        .then((r) => {
-          return r.data()?.amount
-        })
+  async balanceOf(walletAddress: string) {
+    const tokenAddress = await this._getTokenAddress()
+    if (!tokenAddress) {
+      throw new Error("token address is not found")
     }
 
-    const set = (amount: number) => {
-      return admin.firestore().collection("Token").doc(this.daoId).collection("balances").doc(userId).set({ amount })
-    }
-
-    const add = (amount: number) => {
-      return admin
-        .firestore()
-        .collection("Token")
-        .doc(this.daoId)
-        .collection("balances")
-        .doc(userId)
-        .set({ amount: FieldValue.increment(amount) }, { merge: true })
-    }
-
-    return { get, set, add }
+    const client = new GasFreeClient()
+    const res = await client.balanceOf(tokenAddress, walletAddress)
+    return res.amount
   }
 
   async transfer(to: string, amount: number) {
-    this.balances(to).add(amount)
+    // wallet addressの取得
+    const walletAddress = await this._getWalletAddress()
+    const walletPrivateKey = await this._getWalletPrivateKey()
+    if (!walletAddress || !walletPrivateKey) {
+      throw new Error("wallet address is not found")
+    }
+    const tokenAddress = await this._getTokenAddress()
+    if (!tokenAddress) {
+      throw new Error("token address is not found")
+    }
+
+    // 署名を作成
+    const signature = await this._sign(walletAddress, walletPrivateKey)
+
+    const client = new GasFreeClient()
+    await client.mint(tokenAddress, to, amount, walletAddress, signature)
+  }
+
+  private async _getWalletAddress() {
+    const doc = await admin.firestore().collection("GasFreeToken").doc(this.daoId).get()
+    return doc.data()?.walletAddress
+  }
+
+  private async _getWalletPrivateKey() {
+    const doc = await admin.firestore().collection("GasFreeToken").doc(this.daoId).get()
+    return doc.data()?.walletPrivateKey
+  }
+
+  private async _getTokenAddress() {
+    const doc = await admin.firestore().collection("GasFreeToken").doc(this.daoId).get()
+    return doc.data()?.tokenAddress
+  }
+
+  private async _sign(walletAddress: string, walletPrivateKey: string) {
+    const wallet = new ethers.Wallet(walletPrivateKey)
+    const message = walletAddress
+    const signature = await wallet.signMessage(message)
+    return signature
   }
 
   async createToken() {
@@ -51,9 +68,10 @@ export class Token {
     const walletAddress = wallet.address
     const walletPrivateKey = wallet.privateKey
 
+    // 署名を作成
+    const signature = await this._sign(walletAddress, walletPrivateKey)
+
     // トークンを作成
-    const message = walletAddress
-    const signature = await wallet.signMessage(message)
     const client = new GasFreeClient()
     const response = await client.create(walletAddress, signature)
 
