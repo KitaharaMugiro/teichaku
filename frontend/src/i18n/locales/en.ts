@@ -378,6 +378,10 @@ export const en = {
     Title: "This DAO is migrated to Web3!",
     Description: "Please install Metamask to receive tokens.",
   },
+  WalletAddressRegisterModal: {
+    Title: "Hi, You need to register your wallet address!",
+    Description: "Please connect your wallet to register your wallet address.",
+  },
   Alert: {
     PleaseInstallMetamask: "Please install Metamask",
   },

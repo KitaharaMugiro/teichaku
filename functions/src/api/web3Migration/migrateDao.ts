@@ -1,6 +1,7 @@
 import * as functions from "firebase-functions"
 import * as admin from "firebase-admin"
 
+//TODO: 中身をmigrate APIに置き換える
 export const migrateDao = functions.region("asia-northeast1").https.onRequest(async (req, res) => {
   res.set("Access-Control-Allow-Origin", "*")
 

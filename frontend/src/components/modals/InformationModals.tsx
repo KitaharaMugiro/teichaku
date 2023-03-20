@@ -1,9 +1,9 @@
-import { TokenReceiveModal } from "../migration/TokenReceiveModal"
+import { WalletAddressRegisterModal } from "../migration/WalletAddressRegisterModal"
 
 export const InformationModals = () => {
   return (
     <>
-      <TokenReceiveModal />
+      <WalletAddressRegisterModal />
     </>
   )
 }

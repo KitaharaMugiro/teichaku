@@ -381,6 +381,10 @@ export const ja = {
     Title: "このDAOはWeb3に移行しました",
     Description: "Metamaskと連携してトークンを受け取りましょう",
   },
+  WalletAddressRegisterModal: {
+    Title: "ウォレットアドレスを登録",
+    Description: "ウォレットを接続して、アドレスを登録してください",
+  },
   Alert: {
     PleaseInstallMetamask: "Metamaskをインストールしてください",
   },

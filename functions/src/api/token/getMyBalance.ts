@@ -15,10 +15,12 @@ export const getMyBalance = functions.region("asia-northeast1").https.onRequest(
     const requestData: {
       daoId: string
     } = req.body
+
+    //TODO: ここユーザアドレスからでは取れない
     const userId = getUserAddress(req.headers.authorization || "")
     const sender = userId || ""
     const token = new Token(requestData.daoId)
-    const response: number = await token.balances(sender).get()
+    const response: number = await token.balanceOf(sender)
     res.status(200).send({ amount: response })
   }
 })

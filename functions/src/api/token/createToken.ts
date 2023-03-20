@@ -1,7 +1,4 @@
 import * as functions from "firebase-functions"
-import * as admin from "firebase-admin"
-import { GasFreeClient } from "../../utils/GasFreeClient"
-import { ethers } from "ethers"
 import { Token } from "../../contracts/Token"
 
 export const createToken = functions.region("asia-northeast1").https.onRequest(async (req, res) => {

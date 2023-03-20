@@ -1,6 +1,5 @@
 import { ethers } from "ethers"
 import * as admin from "firebase-admin"
-import { FieldValue } from "firebase-admin/firestore"
 import { GasFreeClient } from "../utils/GasFreeClient"
 export class Token {
   daoId: string

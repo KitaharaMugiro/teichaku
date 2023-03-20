@@ -27,30 +27,7 @@ export const useMigrateWeb3 = () => {
     return res
   }
 
-  const getTokenReceiveRights = async () => {
-    const idToken = await getUserIdToken()
-    if (!idToken) {
-      return
-    }
-    const headers = {
-      Authorization: `Bearer ${idToken}`,
-    }
-    try {
-      const res = await apiClient.post(
-        "/getTokenReceiveRights",
-        {
-          daoId: daoId,
-        },
-        headers
-      )
-      return res?.data.token
-    } catch (e) {
-      console.log(e)
-    }
-    return null
-  }
-
-  const registerWallet = async () => {
+  const registerWalletAddress = async () => {
     //ログインも必要だしMetamaskも必要
     const idToken = await getUserIdToken()
     if (!idToken) {
@@ -67,9 +44,8 @@ export const useMigrateWeb3 = () => {
       Authorization: `Bearer ${idToken}`,
     }
     const res = await apiClient.post(
-      "/registerWallet",
+      "/registerWalletAddress",
       {
-        daoId: daoId,
         walletAddress: address,
       },
       headers
@@ -77,9 +53,22 @@ export const useMigrateWeb3 = () => {
     return res
   }
 
+  const isRegisterWallet = async () => {
+    const idToken = await getUserIdToken()
+    if (!idToken) {
+      return null
+    }
+    const headers = {
+      Authorization: `Bearer ${idToken}`,
+    }
+    const res = await apiClient.get("/getWalletAddress", headers)
+    if (res === undefined) return null
+    return res?.data.walletAddress ? true : false
+  }
+
   return {
     migrateDao,
-    getTokenReceiveRights,
-    registerWallet,
+    registerWalletAddress,
+    isRegisterWallet,
   }
 }
